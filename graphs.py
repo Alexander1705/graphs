@@ -42,17 +42,20 @@ class Graph(object):
 
     def __contains__(self, item):
         if isinstance(item, tuple):
+            # Item is an edge
             u, v = item
             if isinstance(u, Node):
                 u = u.label
             if isinstance(v, Node):
                 v = v.label
 
-            return (u, v) in self._edges
-        elif isinstance(item, Node):
-            return item.label in self._nodes
+            return (u, v) in self._edges or not self.is_directed() and (v, u) in self._edges
         else:
-            return item in self._nodes or item in self._edges
+            # Item is a node
+            if isinstance(item, Node):
+                item = item.label
+
+            return item.label in self._nodes
 
     @staticmethod
     def read_adjacency_list(file=sys.stdin, directed=False):
