@@ -1,3 +1,6 @@
+import sys
+
+
 class Node(object):
     def __init__(self, label, graph=None):
         self.label = label
@@ -36,3 +39,33 @@ class Graph(object):
 
     def edges(self):
         return ((Node(u, self), Node(v, self)) for u, v in self._edges)
+
+    def __contains__(self, item):
+        if isinstance(item, tuple):
+            u, v = item
+            if isinstance(u, Node):
+                u = u.label
+            if isinstance(v, Node):
+                v = v.label
+
+            return (u, v) in self._edges
+        elif isinstance(item, Node):
+            return item.label in self._nodes
+        else:
+            return item in self._nodes or item in self._edges
+
+    @staticmethod
+    def read_adjacency_list(file=sys.stdin, directed=False):
+        graph = Graph(directed)
+
+        n, m = map(int, file.readline().split())
+
+        for i in range(1, n+1):
+            graph.add_node(i)
+
+        for line in file.readlines():
+            u, v = map(int, line.split())
+
+            graph.add_edge(u, v)
+
+        return graph
