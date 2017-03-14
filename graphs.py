@@ -21,6 +21,12 @@ class Node(object):
             if (node, self) in self._graph:
                 yield node
 
+    def __hash__(self):
+        return hash(self.label)
+
+    def __eq__(self, other):
+        return self.label == other.label
+
 
 class Graph(object):
     def __init__(self, directed=False):
@@ -62,6 +68,29 @@ class Graph(object):
                 item = item.label
 
             return item.label in self._nodes
+
+    def depth_first_search(self, start):
+        if not isinstance(start, Node):
+            start = Node(start, self)
+
+        stack = [start]
+        visited = set()
+
+        while stack:
+            node = stack[-1]
+
+            if node not in visited:
+                print('{}: node {}, stack - {}'.format(len(visited), node.label, stack))
+
+            visited.add(node)
+
+            for succ in node.successors():
+                if succ not in visited:
+                    stack.append(succ)
+                    break
+
+            if node == stack[-1]:
+                node = stack.pop()
 
     @staticmethod
     def read_adjacency_list(file=sys.stdin, directed=False):
