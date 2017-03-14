@@ -7,13 +7,19 @@ class Node(object):
         self._graph = graph
 
     def neighbors(self):
-        pass
+        for node in self._graph.nodes():
+            if (self, node) in self._graph or (node, self) in self._graph:
+                yield node
 
     def successors(self):
-        pass
+        for node in self._graph.nodes():
+            if (self, node) in self._graph:
+                yield node
 
     def predecessors(self):
-        pass
+        for node in self._graph.nodes():
+            if (node, self) in self._graph:
+                yield node
 
 
 class Graph(object):
