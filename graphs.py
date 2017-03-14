@@ -98,6 +98,26 @@ class Graph(object):
             if node == stack[-1]:
                 node = stack.pop()
 
+    def breadth_first_search(self, start):
+        if not isinstance(start, Node):
+            start = Node(start, self)
+
+        queue = [start]
+        visited = {start}
+
+        i = 1
+        while queue:
+            node = queue[0]
+            del queue[0]
+
+            print('{}: node {}, queue - {}'.format(i, node.label, queue))
+            i += 1
+
+            for succ in node.successors():
+                if succ not in visited:
+                    queue.append(succ)
+                    visited.add(succ)
+
     @staticmethod
     def read_adjacency_list(file=sys.stdin, directed=False):
         graph = Graph(directed)
