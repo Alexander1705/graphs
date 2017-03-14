@@ -27,6 +27,12 @@ class Node(object):
     def __eq__(self, other):
         return self.label == other.label
 
+    def __str__(self):
+        return str(self.label)
+
+    def __repr__(self):
+        return str(self.label)
+
 
 class Graph(object):
     def __init__(self, directed=False):
