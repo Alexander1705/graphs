@@ -75,9 +75,12 @@ class Graph(object):
     def reachability_matrix(self):
         R = self.adjacency_matrix()
 
-        for i in self.nodes():
-            for j in self.nodes():
-                for k in self.nodes():
+        for node in self.nodes():
+            R[node][node] = True
+
+        for k in self.nodes():
+            for i in self.nodes():
+                for j in self.nodes():
                     R[i][j] = R[i][j] or R[i][k] and R[k][j]
 
         return R
