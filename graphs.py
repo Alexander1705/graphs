@@ -25,7 +25,10 @@ class Node(object):
         return hash(self.label)
 
     def __eq__(self, other):
-        return self.label == other.label
+        if isinstance(other, Node):
+            return self.label == other.label
+        else:
+            return self.label == other
 
     def __str__(self):
         return str(self.label)
@@ -37,26 +40,47 @@ class Node(object):
 class Graph(object):
     def __init__(self, directed=False):
         self._directed = directed
-        self._nodes = set()
-        self._edges = set()
+        self._graph = {}
 
     def is_directed(self):
         return self._directed
 
     def add_node(self, node):
-        self._nodes.add(node)
+        if node not in self._graph:
+            self._graph[node] = set()
 
     def add_edge(self, u, v):
-        self._edges.add((u, v))
+        self.add_node(u)
+        self.add_node(v)
+
+        self._graph[u].add(v)
 
         if not self.is_directed():
-            self._edges.add((v, u))
+            self._graph[v].add(u)
 
     def nodes(self):
-        return (Node(label, self) for label in self._nodes)
+        return (Node(label, self) for label in self._graph.keys())
 
     def edges(self):
-        return ((Node(u, self), Node(v, self)) for u, v in self._edges)
+        for u in self._graph.keys():
+            for v in self._graph[u]:
+                yield (u, v)
+
+    def adjacency_matrix(self):
+        return {
+            u: {v: True if v in self._graph[u] else False for v in self._graph.keys()}
+            for u in self._graph.keys()
+        }
+
+    def reachability_matrix(self):
+        R = self.adjacency_matrix()
+
+        for i in self.nodes():
+            for j in self.nodes():
+                for k in self.nodes():
+                    R[i][j] = R[i][j] or R[i][k] and R[k][j]
+
+        return R
 
     def __contains__(self, item):
         if isinstance(item, tuple):

@@ -16,7 +16,7 @@ while nodes:
             nodes.remove(node)
             break
     else:
-        print('Impossible to do top')
+        print('Impossible to do topological sorting')
         break
 else:
     print(sorted_nodes)
