@@ -3,7 +3,7 @@
 from typing import Set
 from graphs import Graph, Node
 
-filename = input('Input file: ')
+filename = input('Входной файл: ')
 
 with open(filename) as file:
     graph = Graph.read_adjacency_list(file, directed=True)
@@ -24,6 +24,6 @@ while free_nodes:
     free_nodes = free_nodes.difference(component)
     components.append(component)
 
-print("Strongly connected components:")
-for i, component in enumerate(components, 1):
-    print('{}: {}'.format(i, ', '.join(str(node) for node in component)))
+print('Найдено {} сильно связных компонент:'.format(len(components)))
+for component in components:
+    print(', '.join(str(node) for node in component))
