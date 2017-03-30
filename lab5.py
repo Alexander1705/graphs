@@ -5,7 +5,7 @@ from graphs import Graph
 filename = input('Input file: ')
 
 with open(filename) as file:
-    graph = Graph.read_adjacency_list(file, directed=True)
+    graph = Graph.read(file, directed=True)
 
 nodes = list(graph.nodes())
 sorted_nodes = []

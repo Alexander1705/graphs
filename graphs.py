@@ -1,25 +1,28 @@
-import sys
+import sys, math
+
+from typing import Union, List
 
 
 class Node(object):
     def __init__(self, label, graph=None):
         self.label = label
-        self._graph = graph
+        self.graph = graph
+        self.color = None
 
-    def neighbors(self):
-        for node in self._graph.nodes():
-            if (self, node) in self._graph or (node, self) in self._graph:
-                yield node
+    def neighbours(self):
+        return self.graph.backend.neighbours(self)
 
     def successors(self):
-        for node in self._graph.nodes():
-            if (self, node) in self._graph:
-                yield node
+        return self.graph.backend.successors(self)
 
     def predecessors(self):
-        for node in self._graph.nodes():
-            if (node, self) in self._graph:
-                yield node
+        return self.graph.backend.predecessors(self)
+
+    def __str__(self):
+        return str(self.label)
+
+    def __repr__(self):
+        return 'Node({}, {})'.format(self.label, self.graph)
 
     def __hash__(self):
         return hash(self.label)
@@ -30,134 +33,96 @@ class Node(object):
         else:
             return self.label == other
 
-    def __str__(self):
-        return str(self.label)
 
-    def __repr__(self):
-        return str(self.label)
+class Edge(object):
+    def __init__(self, u, v, weight=1):
+        self.u = u
+        self.v = v
+        self.weight = weight
 
 
-class Graph(object):
-    def __init__(self, directed=False):
-        self._directed = directed
-        self._graph = {}
+class WeightMatrix(object):
+    def __init__(self, graph, directed):
+        self.graph = graph
+        self.directed = directed
+        self._nodes = list()
+        self.matrix: List[List[Union[int, float]]] = list()
 
-    def is_directed(self):
-        return self._directed
+    def nodes(self):
+        return iter(self._nodes)
 
-    def add_node(self, node):
-        if node not in self._graph:
-            self._graph[node] = set()
+    def edges(self):
+        for i in range(len(self.matrix)):
+            for j in range(len(self.matrix)):
+                yield (self._nodes[i], self._nodes[j], self.matrix[i][j])
 
-    def add_edge(self, u, v):
+    def add_node(self, label):
+        if label in self._nodes:
+            return
+
+        self._nodes.append(Node(label, self.graph))
+
+        for row in self.matrix:
+            row.append(math.inf)
+
+        self.matrix.append([math.inf for _ in range(len(self._nodes))])
+
+    def add_edge(self, u, v, weight=1):
         self.add_node(u)
         self.add_node(v)
 
-        self._graph[u].add(v)
+        i = self._nodes.index(u)
+        j = self._nodes.index(v)
 
-        if not self.is_directed():
-            self._graph[v].add(u)
+        self.matrix[i][j] = weight
+
+        if not self.directed:
+            self.matrix[j][i] = weight
+
+    def successors(self, node):
+        i = self._nodes.index(node)
+
+        for j in range(len(self.matrix)):
+            if self.matrix[i][j] < math.inf:
+                yield self._nodes[j]
+
+    def predecessors(self, node):
+        j = self._nodes.index(node)
+
+        for i in range(len(self.matrix)):
+            if self.matrix[i][j] < math.inf:
+                yield self._nodes[i]
+
+    def __getitem__(self, item):
+        if isinstance(item, tuple):
+            return self.matrix[self._nodes.index(item[0])][self._nodes.index(item[1])]
+        return self._nodes[self._nodes.index(item)]
+
+
+class Graph(object):
+    def __init__(self, directed=True, backend=WeightMatrix):
+        self.directed = directed
+        self.backend: WeightMatrix = backend(self, directed)
 
     def nodes(self):
-        return (Node(label, self) for label in self._graph.keys())
+        return self.backend.nodes()
 
-    def edges(self):
-        for u in self._graph.keys():
-            for v in self._graph[u]:
-                yield (u, v)
+    def add_node(self, label):
+        self.backend.add_node(label)
 
-    def adjacency_matrix(self):
-        return {
-            u: {v: True if v in self._graph[u] else False for v in self._graph.keys()}
-            for u in self._graph.keys()
-        }
+    def add_edge(self, u, v, weight=1):
+        self.backend.add_edge(u, v, weight)
 
-    def reachability_matrix(self):
-        R = self.adjacency_matrix()
-
-        for node in self.nodes():
-            R[node][node] = True
-
-        for k in self.nodes():
-            for i in self.nodes():
-                for j in self.nodes():
-                    R[i][j] = R[i][j] or R[i][k] and R[k][j]
-
-        return R
-
-    def __contains__(self, item):
-        if isinstance(item, tuple):
-            # Item is an edge
-            u, v = item
-            if isinstance(u, Node):
-                u = u.label
-            if isinstance(v, Node):
-                v = v.label
-
-            return (u, v) in self._edges or not self.is_directed() and (v, u) in self._edges
-        else:
-            # Item is a node
-            if isinstance(item, Node):
-                item = item.label
-
-            return item.label in self._nodes
-
-    def depth_first_search(self, start):
-        if not isinstance(start, Node):
-            start = Node(start, self)
-
-        stack = [start]
-        visited = set()
-
-        while stack:
-            node = stack[-1]
-
-            if node not in visited:
-                print('{}: node {}, stack - {}'.format(len(visited)+1, node, stack))
-
-            visited.add(node)
-
-            for succ in node.successors():
-                if succ not in visited:
-                    stack.append(succ)
-                    break
-
-            if node == stack[-1]:
-                node = stack.pop()
-                print('-: node {}, stack - {}'.format(node, stack))
-
-    def breadth_first_search(self, start):
-        if not isinstance(start, Node):
-            start = Node(start, self)
-
-        queue = [start]
-        visited = {start}
-
-        i = 1
-        while queue:
-            node = queue[0]
-            print('{}: node {}, queue - {}'.format(i, start, queue))
-            for succ in node.successors():
-                if succ not in visited:
-                    queue.append(succ)
-                    visited.add(succ)
-                    print('-: node {}, queue - {}'.format(node, queue))
-            del queue[0]
-            print('-: node {}, queue - {}'.format(node, queue))
-            i += 1
+    def __getitem__(self, item):
+        return self.backend[item]
 
     @staticmethod
-    def read_adjacency_list(file=sys.stdin, directed=False):
-        graph = Graph(directed)
+    def read_adjacency_list(file=sys.stdin, directed=True, backend=WeightMatrix):
+        graph = Graph(directed, backend)
 
         n, m = map(int, file.readline().split())
 
-        for i in range(1, n+1):
-            graph.add_node(i)
-
-        for line in file.readlines():
-            u, v = map(int, line.split())
-
-            graph.add_edge(u, v)
+        for line in file:
+            graph.add_edge(*map(int, line.split()))
 
         return graph
