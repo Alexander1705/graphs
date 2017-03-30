@@ -33,6 +33,6 @@ while curr != source:
     path.append(curr)
 path = list(reversed(path))
 
-print('One of shortest pathes is {}'.format(' -> '.join(str(node) for node in path)))
+print('Кратчайший путь из {} в {} - {}'.format(source, dest, ' -> '.join(str(node) for node in path)))
 
-print('\n'.join('Distance between {} and {} is {}'.format(source, k, v) for k, v in distances.items()))
+print('\n'.join('Расстояние до {} - {}'.format(k, v) for k, v in distances.items()))
