@@ -7,7 +7,7 @@ directed = input('Is graph directed: ').lower() in {'y', 'yes'}
 start = int(input('Start search from: '))
 
 with open(filename) as file:
-    g = Graph.read_adjacency_list(file, directed)
+    g = Graph.read(file, directed)
 
 print('\nDepth-first search:')
 g.depth_first_search(start)

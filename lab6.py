@@ -6,7 +6,7 @@ from graphs import Graph, Node
 filename = input('Входной файл: ')
 
 with open(filename) as file:
-    graph = Graph.read_adjacency_list(file, directed=True)
+    graph = Graph.read(file, directed=True)
 
 R = graph.reachability_matrix()
 
