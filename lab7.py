@@ -3,14 +3,14 @@ import math
 
 from graphs import Graph
 
-filename = input('Input file: ')
-directed = input('Is graph directed: ').lower() in {'y', 'yes'}
+filename = input('Входной файл: ')
+directed = input('Граф ориенитрованный: ').lower() in {'да', 'так'}
 
 with open(filename) as file:
     graph = Graph.read_adjacency_list(file, directed)
 
-source = graph[int(input('Source node: '))]
-dest = graph[int(input('Destination: '))]
+source = graph[int(input('Начало: '))]
+dest = graph[int(input('Назначение: '))]
 
 nodes = list(graph.nodes())
 
@@ -33,6 +33,6 @@ while curr != source:
     path.append(curr)
 path = list(reversed(path))
 
-print('Кратчайший путь из {} в {} - {}'.format(source, dest, ' -> '.join(str(node) for node in path)))
+print('Кратчайший путь из {} в {}: {}'.format(source, dest, '-'.join(str(node) for node in path)))
 
 print('\n'.join('Расстояние до {} - {}'.format(k, v) for k, v in distances.items()))
