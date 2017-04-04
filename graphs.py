@@ -93,6 +93,9 @@ class WeightMatrix(object):
             if self.matrix[i][j] < math.inf:
                 yield self._nodes[i]
 
+    def weight_matrix(self):
+        return self.matrix
+
     def __getitem__(self, item):
         if isinstance(item, tuple):
             return self.matrix[self._nodes.index(item[0])][self._nodes.index(item[1])]
@@ -112,6 +115,17 @@ class Graph(object):
 
     def add_edge(self, u, v, weight=1):
         self.backend.add_edge(u, v, weight)
+
+    def adjacency_matrix(self):
+        return [
+            [
+                1 if v in u.successors() else 0
+                for v in self.nodes()
+            ] for u in self.nodes()
+        ]
+
+    def weight_matrix(self):
+        return self.backend.weight_matrix()
 
     def __getitem__(self, item):
         return self.backend[item]
