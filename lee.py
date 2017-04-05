@@ -35,7 +35,7 @@ while queue:
 maze_g = [['#' if maze[i][j] == '#' else ' ' for j in range(len(maze[0]))] for i in range(len(maze))]
 maze_g[x0][y0] = '*'
 curr_x, curr_y = x1, y1
-while x != x0 or y != y0:
+while curr_x != x0 or curr_y != y0:
     for x, y in {(curr_x - 1, curr_y), (curr_x + 1, curr_y), (curr_x, curr_y - 1), (curr_x, curr_y + 1)}:
         if maze[x][y] != '#' and maze[x][y] < maze[curr_x][curr_y]:
             maze_g[curr_x][curr_y] = '*'

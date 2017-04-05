@@ -66,6 +66,7 @@ class WeightMatrix(object):
             row.append(math.inf)
 
         self.matrix.append([math.inf for _ in range(len(self._nodes))])
+        self.matrix[-1][-1] = 0
 
     def add_edge(self, u, v, weight=1):
         self.add_node(u)
